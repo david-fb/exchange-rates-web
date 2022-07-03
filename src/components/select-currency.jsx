@@ -1,26 +1,11 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, SelectorIcon } from '@heroicons/react/solid';
+import useAppContext from '@hooks/useAppContext';
 
-const currencies = {
-  AED: 'United Arab Emirates Dirham',
-  AFN: 'Afghan Afghani',
-  ALL: 'Albanian Lek',
-  AMD: 'Armenian Dram',
-  ANG: 'Netherlands Antillean Guilder',
-  AOA: 'Angolan Kwanza',
-  ARS: 'Argentine Peso',
-  AUD: 'Australian Dollar',
-  AWG: 'Aruban Florin',
-  AZN: 'Azerbaijani Manat',
-  BAM: 'Bosnia-Herzegovina Convertible Mark',
-  BBD: 'Barbadian Dollar',
-  USD: 'US Dollar',
-};
-
-export default function SelectCurrency() {
-  const [selected, setSelected] = useState('USD');
-
+export default function SelectCurrency({ selected, setSelected }) {
+  const { state } = useAppContext();
+  const { currencies } = state;
   return (
     <div>
       <Listbox value={selected} onChange={setSelected}>
