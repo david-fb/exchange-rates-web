@@ -3,14 +3,73 @@ import Converter from '@components/converter';
 import Historical from '@components/historical';
 import { getCurrencies } from '@services/api/exchangeRates';
 import useAppContext from '@hooks/useAppContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 
 export default function Home({ currencies }) {
-  const { setCurrencies } = useAppContext();
+  const { state, setCurrencies, setInitialQuery } = useAppContext();
+  const router = useRouter();
+  const [initalLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
     setCurrencies(currencies);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!initalLoading) return;
+    if (!router.isReady) return;
+    const { amount, from, to } = router.query;
+
+    const badDataRedirect = () => {
+      router.push({
+        pathname: '/',
+        query: {
+          from: 'USD',
+          to: 'COP',
+          amount: '1',
+        },
+      });
+    };
+    if (amount == null || from == null || to == null) return badDataRedirect();
+    if (amount === '' || from === '' || to === '') return badDataRedirect();
+
+    const validCurrencyCode = (currency) => {
+      currency = currency.toUpperCase();
+      return Object.keys(currencies).some((curencyKey) => currency === curencyKey);
+    };
+
+    const isFromValid = validCurrencyCode(from);
+    const isToValid = validCurrencyCode(to);
+    const isAmountValid = !isNaN(Number(amount));
+
+    if (!isFromValid || !isToValid || !isAmountValid) return badDataRedirect();
+    setInitialQuery({
+      from,
+      to,
+      amount,
+    });
+    setInitialLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    if (!router.isReady) return;
+    if (state.fromCurrency === '' && state.toCurrency === '') return;
+    router.push(
+      {
+        pathname: '/',
+        query: {
+          from: state.fromCurrency,
+          to: state.toCurrency,
+          amount: state.fromValue,
+        },
+      },
+      undefined,
+      { shallow: true }
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.fromCurrency, state.toCurrency, state.fromValue]);
 
   return (
     <>

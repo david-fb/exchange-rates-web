@@ -1,33 +1,38 @@
 import SelectCurrency from './select-currency';
 import useAppContext from '@hooks/useAppContext';
+import { useDebouncedCallback } from 'use-debounce';
+import { useEffect, useRef } from 'react';
+
 export default function Converter() {
   const { state, setFromCurrency, setToCurrency, getConversion } = useAppContext();
   const { fromCurrency, toCurrency, fromValue, toValue } = state;
+  const fromInputRef = useRef(null);
+  const toInputRef = useRef(null);
 
-  const handleOnChangeTo = (e) => {
-    const value = e.target.value;
-    getConversion(value, 'toValue');
-  };
+  const debouncedChangeHandler = useDebouncedCallback((value, origin) => getConversion(value, origin), 500);
 
-  const handleOnChangeFrom = (e) => {
-    const value = e.target.value;
-    getConversion(value, 'fromValue');
-  };
+  useEffect(() => {
+    if (!fromInputRef.current && !toInputRef.current) return;
+    fromInputRef.current.value = state.fromValue;
+    toInputRef.current.value = state.toValue;
+  }, [state.fromValue, state.toValue]);
 
   return (
     <section className="w-10/12 max-w-3xl grid grid-rows-2 grid-cols-1 gap-4 sm:grid-flow-col sm:grid-cols-2 p-8 border border-zinc-200 rounded">
       <SelectCurrency selected={fromCurrency} setSelected={setFromCurrency} />
       <input
-        value={fromValue}
-        onChange={handleOnChangeFrom}
-        className="bg-slate-100 px-3 py-4 rounded text-lg focus:outline-none focus:ring ring-emerald-200 border-b-2 border-emerald-300 focus:border-0"
+        defaultValue={fromValue}
+        ref={fromInputRef}
+        onChange={(e) => debouncedChangeHandler(e.target.value, 'fromValue')}
+        className="bg-slate-100 px-3 py-4 rounded-t text-lg focus:outline-none focus:ring ring-emerald-200 border-b-2 border-emerald-300 focus-visible:border-teal-500 focus-visible:border"
         type="number"
       />
       <SelectCurrency selected={toCurrency} setSelected={setToCurrency} />
       <input
-        value={toValue}
-        onChange={handleOnChangeTo}
-        className="bg-slate-100 px-3 py-4 rounded text-lg focus:outline-none focus:ring ring-emerald-200 border-b-2 border-emerald-300 focus:border-0"
+        defaultValue={toValue}
+        ref={toInputRef}
+        onChange={(e) => debouncedChangeHandler(e.target.value, 'toValue')}
+        className="bg-slate-100 px-3 py-4 rounded-t text-lg focus:outline-none focus:ring ring-emerald-200 border-b-2 border-emerald-300 focus-visible:border-teal-500 focus-visible:border"
         type="number"
       />
     </section>
