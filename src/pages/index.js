@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function Home({ currencies }) {
-  const { state, setCurrencies, setInitialQuery } = useAppContext();
+  const { state, setCurrencies, setInitialQuery, changeHandlerCurrency } = useAppContext();
   const router = useRouter();
   const [initalLoading, setInitialLoading] = useState(true);
 
@@ -56,6 +56,13 @@ export default function Home({ currencies }) {
   useEffect(() => {
     if (!router.isReady) return;
     if (state.fromCurrency === '' && state.toCurrency === '') return;
+
+    //every time any currency code is changed, the values are updated
+    const { from, to } = router.query;
+    if (state.fromCurrency !== from || state.toCurrency !== to) {
+      changeHandlerCurrency();
+    }
+
     router.push(
       {
         pathname: '/',

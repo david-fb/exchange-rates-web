@@ -4,12 +4,15 @@ import dayjs from 'dayjs';
 let initialState = {
   date: dayjs(),
   fromCurrency: '',
-  unitFromValue: 4000,
+  unitFromValue: 1,
   fromValue: 1,
   toCurrency: '',
-  unitToValue: 0.00024,
+  unitToValue: 1,
   toValue: 1,
   currencies: {},
+  lastUpdate: '',
+  unitFromHistorical: 1,
+  unitToHistorical: 1,
 };
 
 const useInitialState = () => {
@@ -27,25 +30,70 @@ const useInitialState = () => {
     setState({ ...state, date: date });
   };
 
-  const getConversion = (value, origin) => {
+  const getConversion = async (value, origin) => {
     if (isNaN(Number(value)) || value === '' || value == null) return;
-    let result = 0;
-    result = origin === 'fromValue' ? value * 4000 : value / 4000;
-    setState({ ...state, toValue: origin === 'toValue' ? value : result, fromValue: origin === 'fromValue' ? value : result });
+
+    const res = await fetch('/api/convert', {
+      method: 'POST',
+      body: JSON.stringify({ amount: value, from: origin === 'fromValue' ? state.fromCurrency : state.toCurrency, to: origin === 'fromValue' ? state.toCurrency : state.fromCurrency }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const { result, unitTo, unitFrom, timestamp } = await res.json();
+
+    //const result = origin === 'fromValue' ? value * 4000 : value / 4000;
+
+    setState({
+      ...state,
+      toValue: origin === 'toValue' ? value : result,
+      fromValue: origin === 'fromValue' ? value : result,
+      unitToValue: origin === 'toValue' ? unitTo : unitFrom,
+      unitFromValue: origin === 'fromValue' ? unitFrom : unitTo,
+      lastUpdate: timestamp,
+    });
   };
 
   const setCurrencies = (currencies) => {
     setState({ ...state, currencies: currencies });
   };
 
-  const setInitialQuery = (payload) => {
-    setTimeout(() => {
-      const result = payload.amount * 4000;
-      setState({ ...state, fromCurrency: payload.from, toCurrency: payload.to, fromValue: payload.amount, toValue: result });
-    }, 500);
+  const setInitialQuery = async (payload) => {
+    const res = await fetch('/api/convert', {
+      method: 'POST',
+      body: JSON.stringify({ amount: payload.amount, from: payload.from, to: payload.to }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const { result, unitTo, unitFrom, timestamp } = await res.json();
+    setState({
+      ...state,
+      fromCurrency: payload.from,
+      toCurrency: payload.to,
+      fromValue: payload.amount,
+      toValue: result,
+      unitFromValue: unitFrom,
+      unitToValue: unitTo,
+      lastUpdate: timestamp,
+      unitFromHistorical: unitFrom,
+      unitToHistorical: unitTo,
+    });
   };
 
-  return { state, setFromCurrency, setToCurrency, setDate, getConversion, setCurrencies, setInitialQuery };
+  const changeHandlerCurrency = async () => {
+    const res = await fetch('/api/convert', {
+      method: 'POST',
+      body: JSON.stringify({ amount: state.fromValue, from: state.fromCurrency, to: state.toCurrency }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const { result, unitTo, unitFrom, timestamp } = await res.json();
+    setState({ ...state, fromValue: state.fromValue, toValue: result, unitFromValue: unitFrom, unitToValue: unitTo, lastUpdate: timestamp });
+  };
+
+  return { state, setFromCurrency, setToCurrency, setDate, getConversion, setCurrencies, setInitialQuery, changeHandlerCurrency };
 };
 
 export default useInitialState;
