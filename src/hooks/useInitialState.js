@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 let initialState = {
   date: dayjs(),
@@ -26,8 +28,23 @@ const useInitialState = () => {
     setState({ ...state, toCurrency: currency });
   };
 
-  const setDate = (date) => {
-    setState({ ...state, date: date });
+  const setDate = async (date) => {
+    if (date.isSame(dayjs(), 'day')) {
+      return setState((state) => {
+        return { ...state, date: date, unitFromHistorical: state.unitFromValue, unitToHistorical: state.unitToValue };
+      });
+    }
+    const res = await fetch('/api/historical', {
+      method: 'POST',
+      body: JSON.stringify({ date: date.format('YYYY-MM-DD'), symbol1: state.fromCurrency, symbol2: state.toCurrency }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const { unitTo, unitFrom } = await res.json();
+    setState((state) => {
+      return { ...state, date: date, unitFromHistorical: unitFrom, unitToHistorical: unitTo };
+    });
   };
 
   const getConversion = async (value, origin) => {
@@ -41,8 +58,6 @@ const useInitialState = () => {
       },
     });
     const { result, unitTo, unitFrom, timestamp } = await res.json();
-
-    //const result = origin === 'fromValue' ? value * 4000 : value / 4000;
 
     setState({
       ...state,
@@ -91,6 +106,7 @@ const useInitialState = () => {
     });
     const { result, unitTo, unitFrom, timestamp } = await res.json();
     setState({ ...state, fromValue: state.fromValue, toValue: result, unitFromValue: unitFrom, unitToValue: unitTo, lastUpdate: timestamp });
+    setDate(state.date);
   };
 
   return { state, setFromCurrency, setToCurrency, setDate, getConversion, setCurrencies, setInitialQuery, changeHandlerCurrency };
