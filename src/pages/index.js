@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { getCurrencies } from '@services/api/exchangeRates';
 import Head from 'next/head';
 import Converter from '@components/converter';
 import Historical from '@components/historical';
-import { getCurrencies } from '@services/api/exchangeRates';
+import Footer from '@components/footer';
 import useAppContext from '@hooks/useAppContext';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
 
 export default function Home({ currencies }) {
   const { state, setCurrencies, setInitialQuery, changeHandlerCurrency } = useAppContext();
@@ -91,6 +92,7 @@ export default function Home({ currencies }) {
         <Converter />
         <Historical />
       </main>
+      <Footer />
     </>
   );
 }

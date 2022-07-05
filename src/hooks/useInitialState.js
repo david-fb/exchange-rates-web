@@ -15,6 +15,7 @@ let initialState = {
   lastUpdate: '',
   unitFromHistorical: 1,
   unitToHistorical: 1,
+  loading: true,
 };
 
 const useInitialState = () => {
@@ -93,6 +94,7 @@ const useInitialState = () => {
       lastUpdate: timestamp,
       unitFromHistorical: unitFrom,
       unitToHistorical: unitTo,
+      loading: false,
     });
   };
 

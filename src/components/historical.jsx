@@ -8,7 +8,7 @@ import HistoricalTable from './historical-table';
 
 export default function Historical() {
   const { state, setDate } = useAppContext();
-  const { date, unitFromHistorical, unitToHistorical, fromCurrency, toCurrency, currencies } = state;
+  const { date, unitFromHistorical, unitToHistorical, fromCurrency, toCurrency, currencies, loading } = state;
 
   return (
     <section className="w-10/12 max-w-3xl flex flex-col gap-4 items-start">
@@ -29,10 +29,14 @@ export default function Historical() {
         </LocalizationProvider>
       </div>
 
-      <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <HistoricalTable fromCode={fromCurrency} fromName={currencies[fromCurrency]} toCode={toCurrency} toName={currencies[toCurrency]} baseValue={unitFromHistorical} />
-        <HistoricalTable fromCode={toCurrency} fromName={currencies[toCurrency]} toCode={fromCurrency} toName={currencies[fromCurrency]} baseValue={unitToHistorical} />
-      </div>
+      {loading ? (
+        <p>loading...</p>
+      ) : (
+        <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <HistoricalTable fromCode={fromCurrency} fromName={currencies[fromCurrency]} toCode={toCurrency} toName={currencies[toCurrency]} baseValue={unitFromHistorical} />
+          <HistoricalTable fromCode={toCurrency} fromName={currencies[toCurrency]} toCode={fromCurrency} toName={currencies[fromCurrency]} baseValue={unitToHistorical} />
+        </div>
+      )}
     </section>
   );
 }
