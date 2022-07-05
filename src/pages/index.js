@@ -86,8 +86,8 @@ export default function Home({ currencies }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col flex-start gap-8 items-center min-h-screen">
-        <h1 className="mt-8 text-3xl font-bold text-emerald-400">CURRENCY CONVERTER</h1>
+      <main className="flex flex-col flex-start gap-8 items-center min-h-screen py-8">
+        <h1 className="text-3xl font-bold text-emerald-400">CURRENCY CONVERTER</h1>
         <Converter />
         <Historical />
       </main>

@@ -22,7 +22,7 @@ export default function Converter() {
       <p className="text-lg">
         1 <span className="font-bold">{fromCurrency}</span> is equal to {unitFromValue} <span className="font-bold">{toCurrency}</span>
       </p>
-      <section className="w-full grid grid-rows-2 grid-cols-1 gap-4 sm:grid-flow-col sm:grid-cols-2">
+      <div className="w-full grid grid-rows-2 grid-cols-1 gap-4 sm:grid-flow-col sm:grid-cols-2">
         <SelectCurrency selected={fromCurrency} setSelected={setFromCurrency} />
         <input
           defaultValue={fromValue}
@@ -39,7 +39,7 @@ export default function Converter() {
           className="bg-slate-100 px-3 py-4 rounded-t text-lg focus:outline-none focus:ring ring-emerald-200 border-b-2 border-emerald-300 focus-visible:border-teal-500 focus-visible:border"
           type="number"
         />
-      </section>
+      </div>
     </section>
   );
 }

@@ -13,19 +13,21 @@ export default function Historical() {
   return (
     <section className="w-10/12 max-w-3xl flex flex-col gap-4 items-start">
       <h2 className="self-center text-2xl font-semibold text-emerald-400">Historical exchange rates</h2>
-      <p>Date</p>
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          value={date}
-          onChange={(newDate) => {
-            setDate(newDate);
-          }}
-          minDate={dayjs('2001-01-01')}
-          maxDate={dayjs()}
-          renderInput={(params) => <TextField {...params} helperText={params?.inputProps?.placeholder} />}
-          inputFormat={'YYYY-MM-DD'}
-        />
-      </LocalizationProvider>
+      <div>
+        <p className="font-semibold">Date</p>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            value={date}
+            onChange={(newDate) => {
+              setDate(newDate);
+            }}
+            minDate={dayjs('2001-01-01')}
+            maxDate={dayjs()}
+            renderInput={(params) => <TextField {...params} helperText={params?.inputProps?.placeholder} />}
+            inputFormat={'YYYY-MM-DD'}
+          />
+        </LocalizationProvider>
+      </div>
 
       <div className="w-full grid grid-cols-1 gap-4 sm:grid-cols-2">
         <HistoricalTable fromCode={fromCurrency} fromName={currencies[fromCurrency]} toCode={toCurrency} toName={currencies[toCurrency]} baseValue={unitFromHistorical} />
